@@ -32,7 +32,7 @@ export async function upsertRepository(
 
 export async function getRepositoriesByUser(userId: number): Promise<Repository[]> {
   const result = await query(
-    'SELECT * FROM repositories WHERE user_id = $1 ORDER BY name',
+    'SELECT * FROM repositories WHERE user_id = $1 ORDER BY updated_at DESC',
     [userId]
   );
   return result.rows;
