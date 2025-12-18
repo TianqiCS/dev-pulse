@@ -16,6 +16,7 @@ function App() {
   const [generating, setGenerating] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [timeRange, setTimeRange] = useState<number>(7); // Default to 7 days (weekly)
 
   // Check authentication on mount
   useEffect(() => {
@@ -95,9 +96,9 @@ function App() {
     
     try {
       // Generate summary (this now includes ingestion)
-      await api.generateSummary(selectedRepo);
+      await api.generateSummary(selectedRepo, timeRange);
       
-      setSuccessMessage('Generating summary from latest GitHub activity... This may take 10-15 seconds.');
+      setSuccessMessage(`Generating summary from latest ${timeRange} days of GitHub activity... This may take 10-15 seconds.`);
       
       // Poll for the new summary
       let attempts = 0;
@@ -245,13 +246,24 @@ function App() {
                 <label className="repo-selector-label" htmlFor="repo-select">
                   Select Repository
                 </label>
-                <button
-                  className="button button-small"
-                  onClick={handleGenerateSummary}
-                  disabled={generating || !selectedRepo}
-                >
-                  {generating ? 'Generating...' : 'Generate New Summary'}
-                </button>
+                <div className="generate-controls">
+                  <select
+                    className="time-range-select"
+                    value={timeRange}
+                    onChange={(e) => setTimeRange(Number(e.target.value))}
+                  >
+                    <option value={7}>Last 7 days</option>
+                    <option value={14}>Last 14 days</option>
+                    <option value={30}>Last 30 days</option>
+                  </select>
+                  <button
+                    className="button button-small"
+                    onClick={handleGenerateSummary}
+                    disabled={generating || !selectedRepo}
+                  >
+                    {generating ? 'Generating...' : 'Generate New Summary'}
+                  </button>
+                </div>
               </div>
               <select
                 id="repo-select"

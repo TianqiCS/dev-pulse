@@ -119,10 +119,14 @@ class ApiClient {
     }
   }
 
-  async generateSummary(repoId: number): Promise<void> {
+  async generateSummary(repoId: number, daysBack: number = 7): Promise<void> {
     const response = await fetch(`${this.baseUrl}/summaries/repo/${repoId}/generate`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       credentials: 'include',
+      body: JSON.stringify({ daysBack }),
     });
     if (!response.ok) {
       throw new Error('Failed to generate summary');
