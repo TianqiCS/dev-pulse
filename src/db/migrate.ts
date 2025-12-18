@@ -26,10 +26,24 @@ export async function migrate() {
       full_name VARCHAR(512) NOT NULL,
       owner VARCHAR(255) NOT NULL,
       is_selected BOOLEAN DEFAULT false,
+      github_updated_at TIMESTAMP,
       created_at TIMESTAMP DEFAULT NOW(),
       updated_at TIMESTAMP DEFAULT NOW(),
       UNIQUE(user_id, github_id)
     )
+  `);
+
+  // Add github_updated_at column if it doesn't exist (for existing databases)
+  await query(`
+    DO $$ 
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'repositories' AND column_name = 'github_updated_at'
+      ) THEN
+        ALTER TABLE repositories ADD COLUMN github_updated_at TIMESTAMP;
+      END IF;
+    END $$;
   `);
 
   // Activities table
@@ -72,10 +86,17 @@ export async function migrate() {
       week_end TIMESTAMP NOT NULL,
       summary_text TEXT NOT NULL,
       model_version VARCHAR(50) NOT NULL,
+      deleted SMALLINT DEFAULT 0,
       created_at TIMESTAMP DEFAULT NOW(),
       updated_at TIMESTAMP DEFAULT NOW(),
       UNIQUE(repo_id, week_start, week_end)
     )
+  `);
+
+  // Add deleted column if it doesn't exist (for existing databases)
+  await query(`
+    ALTER TABLE summaries 
+    ADD COLUMN IF NOT EXISTS deleted SMALLINT DEFAULT 0
   `);
 
   await query(`

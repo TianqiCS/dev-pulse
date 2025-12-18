@@ -133,6 +133,16 @@ class ApiClient {
     }
   }
 
+  async deleteSummary(summaryId: number): Promise<void> {
+    const response = await fetch(`${this.baseUrl}/summaries/${summaryId}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete summary');
+    }
+  }
+
   async triggerIngestion(): Promise<void> {
     const response = await fetch(`${this.baseUrl}/ingestion/trigger`, {
       method: 'POST',
