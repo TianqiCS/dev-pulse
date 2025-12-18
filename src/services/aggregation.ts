@@ -94,6 +94,7 @@ export async function aggregateWeeklyActivity(
         prsOpened.push({
           number: activity.raw_payload.pr_number,
           title: activity.raw_payload.title,
+          body: activity.raw_payload.body,
           author: activity.author,
           timestamp: activity.timestamp,
         });
@@ -104,6 +105,7 @@ export async function aggregateWeeklyActivity(
         prsMerged.push({
           number: activity.raw_payload.pr_number,
           title: activity.raw_payload.title,
+          body: activity.raw_payload.body,
           author: activity.author,
           timestamp: activity.timestamp,
         });
@@ -114,6 +116,7 @@ export async function aggregateWeeklyActivity(
         prsClosed.push({
           number: activity.raw_payload.pr_number,
           title: activity.raw_payload.title,
+          body: activity.raw_payload.body,
           author: activity.author,
           timestamp: activity.timestamp,
         });
@@ -152,6 +155,7 @@ export async function aggregateWeeklyActivity(
         issuesOpened.push({
           number: activity.raw_payload.issue_number,
           title: activity.raw_payload.title,
+          body: activity.raw_payload.body,
           author: activity.author,
           timestamp: activity.timestamp,
         });
@@ -162,6 +166,7 @@ export async function aggregateWeeklyActivity(
         issuesClosed.push({
           number: activity.raw_payload.issue_number,
           title: activity.raw_payload.title,
+          body: activity.raw_payload.body,
           author: activity.author,
           timestamp: activity.timestamp,
         });
@@ -246,6 +251,7 @@ export async function aggregateWeeklyActivityByPeriod(
         prsOpened.push({
           number: activity.raw_payload.pr_number,
           title: activity.raw_payload.title,
+          body: activity.raw_payload.body,
           author: activity.author,
           timestamp: activity.timestamp,
         });
@@ -256,6 +262,7 @@ export async function aggregateWeeklyActivityByPeriod(
         prsMerged.push({
           number: activity.raw_payload.pr_number,
           title: activity.raw_payload.title,
+          body: activity.raw_payload.body,
           author: activity.author,
           timestamp: activity.timestamp,
         });
@@ -266,6 +273,7 @@ export async function aggregateWeeklyActivityByPeriod(
         prsClosed.push({
           number: activity.raw_payload.pr_number,
           title: activity.raw_payload.title,
+          body: activity.raw_payload.body,
           author: activity.author,
           timestamp: activity.timestamp,
         });
@@ -304,6 +312,7 @@ export async function aggregateWeeklyActivityByPeriod(
         issuesOpened.push({
           number: activity.raw_payload.issue_number,
           title: activity.raw_payload.title,
+          body: activity.raw_payload.body,
           author: activity.author,
           timestamp: activity.timestamp,
         });
@@ -314,6 +323,7 @@ export async function aggregateWeeklyActivityByPeriod(
         issuesClosed.push({
           number: activity.raw_payload.issue_number,
           title: activity.raw_payload.title,
+          body: activity.raw_payload.body,
           author: activity.author,
           timestamp: activity.timestamp,
         });

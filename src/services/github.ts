@@ -125,6 +125,7 @@ export class GitHubService {
             {
               pr_number: pr.number,
               title: pr.title,
+              body: pr.body,
               state: pr.state,
               url: pr.html_url,
               created_at: pr.created_at,
@@ -146,6 +147,7 @@ export class GitHubService {
               {
                 pr_number: pr.number,
                 title: pr.title,
+                body: pr.body,
                 url: pr.html_url,
                 merged_at: pr.merged_at,
               }
@@ -166,6 +168,7 @@ export class GitHubService {
               {
                 pr_number: pr.number,
                 title: pr.title,
+                body: pr.body,
                 url: pr.html_url,
                 closed_at: pr.closed_at,
               }
@@ -244,7 +247,9 @@ export class GitHubService {
                 commentedAt,
                 {
                   pr_number: pr.number,
+                  pr_title: pr.title,
                   comment_id: comment.id,
+                  body: comment.body,
                   user: comment.user?.login,
                 }
               );
@@ -303,6 +308,7 @@ export class GitHubService {
             {
               issue_number: issue.number,
               title: issue.title,
+              body: issue.body,
               state: issue.state,
               url: issue.html_url,
               created_at: issue.created_at,
@@ -325,6 +331,7 @@ export class GitHubService {
               {
                 issue_number: issue.number,
                 title: issue.title,
+                body: issue.body,
                 url: issue.html_url,
                 closed_at: issue.closed_at,
                 closed_by: issue.closed_by?.login,
@@ -353,7 +360,9 @@ export class GitHubService {
                 commentedAt,
                 {
                   issue_number: issue.number,
+                  issue_title: issue.title,
                   comment_id: comment.id,
+                  body: comment.body,
                   user: comment.user?.login,
                 }
               );
