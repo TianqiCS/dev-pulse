@@ -250,6 +250,7 @@ export class GitHubService {
                   pr_title: pr.title,
                   comment_id: comment.id,
                   body: comment.body,
+                  url: comment.html_url,
                   user: comment.user?.login,
                 }
               );
@@ -363,6 +364,7 @@ export class GitHubService {
                   issue_title: issue.title,
                   comment_id: comment.id,
                   body: comment.body,
+                  url: comment.html_url,
                   user: comment.user?.login,
                 }
               );
