@@ -1,7 +1,8 @@
 import express, { Request, Response } from 'express';
 import { requireAuth } from './auth';
 import { getSelectedRepositories, getRepositoryById } from '../models/repository';
-import { getAllSummariesForRepo, getLatestSummary } from '../models/summary';
+import { getAllSummariesForRepo, getLatestSummary, softDeleteSummary } from '../models/summary';
+import { query } from '../db';
 
 const router = express.Router();
 
@@ -145,6 +146,36 @@ router.post('/repo/:repoId/generate', requireAuth, async (req: Request, res: Res
   } catch (error) {
     console.error('Error generating summary:', error);
     res.status(500).json({ error: 'Failed to generate summary' });
+  }
+});
+
+// Delete a summary (soft delete)
+router.delete('/:summaryId', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const summaryId = parseInt(req.params.summaryId, 10);
+
+    // Verify summary exists and belongs to user's repo
+    const result = await query(
+      `SELECT s.*, r.user_id 
+       FROM summaries s
+       JOIN repositories r ON s.repo_id = r.id
+       WHERE s.id = $1`,
+      [summaryId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Summary not found' });
+    }
+
+    if (result.rows[0].user_id !== req.session.userId) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    await softDeleteSummary(summaryId);
+    res.json({ message: 'Summary deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting summary:', error);
+    res.status(500).json({ error: 'Failed to delete summary' });
   }
 });
 
