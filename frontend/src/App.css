@@ -180,6 +180,28 @@ body {
   margin-bottom: 0.5rem;
 }
 
+.generate-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.time-range-select {
+  padding: 0.5rem 1rem;
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-family: var(--font-sans);
+  cursor: pointer;
+}
+
+.time-range-select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
 .repo-select {
   width: 100%;
   max-width: 500px;

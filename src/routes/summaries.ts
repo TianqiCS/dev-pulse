@@ -75,6 +75,7 @@ router.get('/latest', requireAuth, async (req: Request, res: Response) => {
 router.post('/repo/:repoId/generate', requireAuth, async (req: Request, res: Response) => {
   try {
     const repoId = parseInt(req.params.repoId, 10);
+    const daysBack = req.body.daysBack || 7; // Default to 7 days if not specified
 
     // Verify repo belongs to user
     const repo = await getRepositoryById(repoId);
@@ -97,7 +98,6 @@ router.post('/repo/:repoId/generate', requireAuth, async (req: Request, res: Res
 
     // Import services dynamically to avoid circular dependencies
     const { GitHubService } = await import('../services/github');
-    const { aggregateWeeklyActivity } = await import('../services/aggregation');
     const { SummaryService } = await import('../services/summary');
     const { createOrUpdateSummary } = await import('../models/summary');
 
@@ -109,7 +109,7 @@ router.post('/repo/:repoId/generate', requireAuth, async (req: Request, res: Res
         console.log(`  1/3 Fetching latest activity from GitHub...`);
         const githubService = new GitHubService(user.access_token);
         try {
-          await githubService.ingestRepositoryActivity(repo, 7);
+          await githubService.ingestRepositoryActivity(repo, daysBack);
           console.log(`  ✓ Activity ingestion complete`);
         } catch (error: any) {
           if (error.status === 403 && error.message?.includes('organization has enabled OAuth App access restrictions')) {
@@ -121,7 +121,11 @@ router.post('/repo/:repoId/generate', requireAuth, async (req: Request, res: Res
         
         // Step 2: Aggregate activity data
         console.log(`  2/3 Aggregating activity data...`);
-        const activityData = await aggregateWeeklyActivity(repo);
+        const weekEnd = new Date();
+        const weekStart = new Date();
+        weekStart.setDate(weekStart.getDate() - daysBack);
+        const { aggregateWeeklyActivityByPeriod } = await import('../services/aggregation');
+        const activityData = await aggregateWeeklyActivityByPeriod(repo.id, repo.full_name, weekStart, weekEnd);
         console.log(`  ✓ Found ${activityData.stats.commits} commits, ${activityData.stats.prsOpened} PRs`);
         
         // Step 3: Generate AI summary

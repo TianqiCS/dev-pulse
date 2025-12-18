@@ -17,6 +17,7 @@ function App() {
   const [generating, setGenerating] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [timeRange, setTimeRange] = useState<number>(7); // Default to 7 days (weekly)
 
   // Check authentication on mount
   useEffect(() => {
@@ -96,8 +97,8 @@ function App() {
     setSuccessMessage(null);
     
     try {
-      await api.generateSummary(selectedRepo);
-      setSuccessMessage('Generating summary from latest GitHub activity... This may take 10-15 seconds.');
+      await api.generateSummary(selectedRepo, timeRange);
+      setSuccessMessage(`Generating summary from latest ${timeRange} days of GitHub activity... This may take 10-15 seconds.`);
       
       // Poll for the new summary
       let attempts = 0;
@@ -277,13 +278,24 @@ function App() {
                 <label className="repo-selector-label" htmlFor="repo-select">
                   Select Repository
                 </label>
-                <button
-                  className="button button-small"
-                  onClick={handleGenerateSummary}
-                  disabled={generating || !selectedRepo}
-                >
-                  {generating ? 'Generating...' : 'Generate New Summary'}
-                </button>
+                <div className="generate-controls">
+                  <select
+                    className="time-range-select"
+                    value={timeRange}
+                    onChange={(e) => setTimeRange(Number(e.target.value))}
+                  >
+                    <option value={7}>Last 7 days</option>
+                    <option value={14}>Last 14 days</option>
+                    <option value={30}>Last 30 days</option>
+                  </select>
+                  <button
+                    className="button button-small"
+                    onClick={handleGenerateSummary}
+                    disabled={generating || !selectedRepo}
+                  >
+                    {generating ? 'Generating...' : 'Generate New Summary'}
+                  </button>
+                </div>
               </div>
               <select
                 id="repo-select"
@@ -305,7 +317,7 @@ function App() {
               <div className="summary-card">
                 <div className="summary-header">
                   <div>
-                    <h1 className="summary-title">Weekly Engineering Summary</h1>
+                    <h1 className="summary-title">Engineering Summary</h1>
                     <div className="summary-meta">
                       {new Date(allSummaries[currentSummaryIndex].week_start).toLocaleDateString()} -{' '}
                       {new Date(allSummaries[currentSummaryIndex].week_end).toLocaleDateString()}
