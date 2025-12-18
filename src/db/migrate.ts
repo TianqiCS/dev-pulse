@@ -26,10 +26,24 @@ export async function migrate() {
       full_name VARCHAR(512) NOT NULL,
       owner VARCHAR(255) NOT NULL,
       is_selected BOOLEAN DEFAULT false,
+      github_updated_at TIMESTAMP,
       created_at TIMESTAMP DEFAULT NOW(),
       updated_at TIMESTAMP DEFAULT NOW(),
       UNIQUE(user_id, github_id)
     )
+  `);
+
+  // Add github_updated_at column if it doesn't exist (for existing databases)
+  await query(`
+    DO $$ 
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'repositories' AND column_name = 'github_updated_at'
+      ) THEN
+        ALTER TABLE repositories ADD COLUMN github_updated_at TIMESTAMP;
+      END IF;
+    END $$;
   `);
 
   // Activities table
