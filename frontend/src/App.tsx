@@ -284,7 +284,7 @@ function App() {
             ) : summary ? (
               <div className="summary-card">
                 <div className="summary-header">
-                  <h1 className="summary-title">Weekly Engineering Summary</h1>
+                  <h1 className="summary-title">Engineering Summary</h1>
                   <div className="summary-meta">
                     {new Date(summary.week_start).toLocaleDateString()} -{' '}
                     {new Date(summary.week_end).toLocaleDateString()}
