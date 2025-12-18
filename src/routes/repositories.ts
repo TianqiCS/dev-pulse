@@ -29,7 +29,8 @@ router.get('/sync', requireAuth, async (req: Request, res: Response) => {
         repo.id.toString(),
         repo.name,
         repo.full_name,
-        repo.owner.login
+        repo.owner.login,
+        repo.updated_at ? new Date(repo.updated_at) : undefined
       );
     }
 

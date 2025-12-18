@@ -9,7 +9,7 @@ async function main() {
   if (action === 'list') {
     // List all repositories
     const result = await query(
-      'SELECT id, full_name, is_selected FROM repositories WHERE user_id = $1 ORDER BY is_selected DESC, full_name',
+      'SELECT id, full_name, is_selected, github_updated_at FROM repositories WHERE user_id = $1 ORDER BY COALESCE(github_updated_at, updated_at) DESC',
       [userId]
     );
     
@@ -42,11 +42,11 @@ async function main() {
 
     for (const repo of repos) {
       await query(
-        `INSERT INTO repositories (user_id, github_id, name, full_name, owner, is_selected)
-         VALUES ($1, $2, $3, $4, $5, false)
+        `INSERT INTO repositories (user_id, github_id, name, full_name, owner, is_selected, github_updated_at)
+         VALUES ($1, $2, $3, $4, $5, false, $6)
          ON CONFLICT (user_id, github_id) 
-         DO UPDATE SET name = $3, full_name = $4, owner = $5`,
-        [userId, repo.id.toString(), repo.name, repo.full_name, repo.owner.login]
+         DO UPDATE SET name = $3, full_name = $4, owner = $5, github_updated_at = $6`,
+        [userId, repo.id.toString(), repo.name, repo.full_name, repo.owner.login, repo.updated_at]
       );
     }
 

@@ -8,6 +8,7 @@ export interface Repository {
   full_name: string;
   owner: string;
   is_selected: boolean;
+  github_updated_at?: Date;
   created_at: Date;
   updated_at: Date;
 }
@@ -17,22 +18,23 @@ export async function upsertRepository(
   githubId: string,
   name: string,
   fullName: string,
-  owner: string
+  owner: string,
+  githubUpdatedAt?: Date
 ): Promise<Repository> {
   const result = await query(
-    `INSERT INTO repositories (user_id, github_id, name, full_name, owner)
-     VALUES ($1, $2, $3, $4, $5)
+    `INSERT INTO repositories (user_id, github_id, name, full_name, owner, github_updated_at)
+     VALUES ($1, $2, $3, $4, $5, $6)
      ON CONFLICT (user_id, github_id) 
-     DO UPDATE SET name = $3, full_name = $4, owner = $5, updated_at = NOW()
+     DO UPDATE SET name = $3, full_name = $4, owner = $5, github_updated_at = $6, updated_at = NOW()
      RETURNING *`,
-    [userId, githubId, name, fullName, owner]
+    [userId, githubId, name, fullName, owner, githubUpdatedAt]
   );
   return result.rows[0];
 }
 
 export async function getRepositoriesByUser(userId: number): Promise<Repository[]> {
   const result = await query(
-    'SELECT * FROM repositories WHERE user_id = $1 ORDER BY updated_at DESC',
+    'SELECT * FROM repositories WHERE user_id = $1 ORDER BY COALESCE(github_updated_at, updated_at) DESC',
     [userId]
   );
   return result.rows;
