@@ -36,7 +36,11 @@ export async function createActivity(
     const result = await query(
       `INSERT INTO activities (repo_id, event_type, github_id, author, timestamp, raw_payload)
        VALUES ($1, $2, $3, $4, $5, $6)
-       ON CONFLICT (repo_id, event_type, github_id) DO NOTHING
+       ON CONFLICT (repo_id, event_type, github_id) 
+       DO UPDATE SET
+         author = EXCLUDED.author,
+         timestamp = EXCLUDED.timestamp,
+         raw_payload = EXCLUDED.raw_payload
        RETURNING *`,
       [repoId, eventType, githubId, author, timestamp, JSON.stringify(rawPayload)]
     );
