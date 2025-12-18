@@ -46,7 +46,7 @@ async function main() {
          VALUES ($1, $2, $3, $4, $5, false, $6)
          ON CONFLICT (user_id, github_id) 
          DO UPDATE SET name = $3, full_name = $4, owner = $5, github_updated_at = $6`,
-        [userId, repo.id.toString(), repo.name, repo.full_name, repo.owner.login, repo.updated_at]
+        [userId, repo.id.toString(), repo.name, repo.full_name, repo.owner.login, repo.updated_at ? new Date(repo.updated_at) : null]
       );
     }
 
