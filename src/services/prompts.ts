@@ -1,5 +1,11 @@
 import { WeeklyActivityData } from './aggregation';
 
+function formatBodyPreview(body: string | null | undefined): string {
+  if (!body) return '';
+  const preview = body.substring(0, 200);
+  return '\n  Description: ' + preview + (body.length > 200 ? '...' : '');
+}
+
 export function buildWeeklySummaryPrompt(data: WeeklyActivityData): string {
   const { repoName, weekStart, weekEnd, stats, activities, contributors } = data;
 
@@ -37,19 +43,19 @@ COMMITS (${stats.commits} total):
 ${activities.commits.slice(0, 10).map(c => `- ${c.sha}: ${c.message.split('\n')[0]} (${c.author})`).join('\n') || 'No commits this week'}
 
 PULL REQUESTS OPENED (${stats.prsOpened} total):
-${activities.prsOpened.map(pr => `- PR #${pr.number}: ${pr.title} by ${pr.author}${pr.body ? '\n  Description: ' + pr.body.substring(0, 200) + (pr.body.length > 200 ? '...' : '') : ''}`).join('\n') || 'No PRs opened'}
+${activities.prsOpened.map(pr => `- PR #${pr.number}: ${pr.title} by ${pr.author}${formatBodyPreview(pr.body)}`).join('\n') || 'No PRs opened'}
 
 PULL REQUESTS MERGED (${stats.prsMerged} total):
-${activities.prsMerged.map(pr => `- PR #${pr.number}: ${pr.title} by ${pr.author}${pr.body ? '\n  Description: ' + pr.body.substring(0, 200) + (pr.body.length > 200 ? '...' : '') : ''}`).join('\n') || 'No PRs merged'}
+${activities.prsMerged.map(pr => `- PR #${pr.number}: ${pr.title} by ${pr.author}${formatBodyPreview(pr.body)}`).join('\n') || 'No PRs merged'}
 
 PULL REQUESTS CLOSED WITHOUT MERGE (${stats.prsClosed} total):
-${activities.prsClosed.map(pr => `- PR #${pr.number}: ${pr.title} by ${pr.author}${pr.body ? '\n  Description: ' + pr.body.substring(0, 200) + (pr.body.length > 200 ? '...' : '') : ''}`).join('\n') || 'None'}
+${activities.prsClosed.map(pr => `- PR #${pr.number}: ${pr.title} by ${pr.author}${formatBodyPreview(pr.body)}`).join('\n') || 'None'}
 
 ISSUES OPENED (${stats.issuesOpened} total):
-${activities.issuesOpened.map(issue => `- Issue #${issue.number}: ${issue.title} by ${issue.author}${issue.body ? '\n  Description: ' + issue.body.substring(0, 200) + (issue.body.length > 200 ? '...' : '') : ''}`).join('\n') || 'No issues opened'}
+${activities.issuesOpened.map(issue => `- Issue #${issue.number}: ${issue.title} by ${issue.author}${formatBodyPreview(issue.body)}`).join('\n') || 'No issues opened'}
 
 ISSUES CLOSED (${stats.issuesClosed} total):
-${activities.issuesClosed.map(issue => `- Issue #${issue.number}: ${issue.title} by ${issue.author}${issue.body ? '\n  Description: ' + issue.body.substring(0, 200) + (issue.body.length > 200 ? '...' : '') : ''}`).join('\n') || 'No issues closed'}
+${activities.issuesClosed.map(issue => `- Issue #${issue.number}: ${issue.title} by ${issue.author}${formatBodyPreview(issue.body)}`).join('\n') || 'No issues closed'}
 
 CI FAILURES (${stats.ciFailures} total):
 ${activities.ciFailures.slice(0, 5).map(ci => `- ${ci.checkName}: ${ci.conclusion} (commit ${ci.commitSha})`).join('\n') || 'No CI failures'}
