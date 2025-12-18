@@ -7,6 +7,7 @@ export interface Summary {
   week_end: Date;
   summary_text: string;
   model_version: string;
+  deleted: number;
   created_at: Date;
   updated_at: Date;
 }
@@ -46,7 +47,7 @@ export async function getSummary(
 
 export async function getLatestSummary(repoId: number): Promise<Summary | null> {
   const result = await query(
-    'SELECT * FROM summaries WHERE repo_id = $1 ORDER BY week_start DESC LIMIT 1',
+    'SELECT * FROM summaries WHERE repo_id = $1 AND deleted = 0 ORDER BY week_start DESC LIMIT 1',
     [repoId]
   );
   return result.rows[0] || null;
@@ -54,8 +55,15 @@ export async function getLatestSummary(repoId: number): Promise<Summary | null> 
 
 export async function getAllSummariesForRepo(repoId: number): Promise<Summary[]> {
   const result = await query(
-    'SELECT * FROM summaries WHERE repo_id = $1 ORDER BY week_start DESC',
+    'SELECT * FROM summaries WHERE repo_id = $1 AND deleted = 0 ORDER BY week_start DESC',
     [repoId]
   );
   return result.rows;
+}
+
+export async function softDeleteSummary(summaryId: number): Promise<void> {
+  await query(
+    'UPDATE summaries SET deleted = 1, updated_at = NOW() WHERE id = $1',
+    [summaryId]
+  );
 }

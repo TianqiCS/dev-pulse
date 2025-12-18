@@ -10,7 +10,8 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [repositories, setRepositories] = useState<Repository[]>([]);
   const [selectedRepo, setSelectedRepo] = useState<number | null>(null);
-  const [summary, setSummary] = useState<Summary | null>(null);
+  const [allSummaries, setAllSummaries] = useState<Summary[]>([]);
+  const [currentSummaryIndex, setCurrentSummaryIndex] = useState(0);
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
@@ -29,10 +30,10 @@ function App() {
     }
   }, [user]);
 
-  // Load summary when repository is selected
+  // Load all summaries when repository is selected
   useEffect(() => {
     if (selectedRepo) {
-      loadSummary(selectedRepo);
+      loadAllSummaries(selectedRepo);
     }
   }, [selectedRepo]);
 
@@ -64,15 +65,16 @@ function App() {
     loadRepositories();
   }
 
-  async function loadSummary(repoId: number) {
+  async function loadAllSummaries(repoId: number) {
     setLoadingSummary(true);
     setError(null);
     try {
-      const summaryData = await api.getLatestSummary(repoId);
-      setSummary(summaryData);
+      const summaries = await api.getAllSummariesForRepo(repoId);
+      setAllSummaries(summaries);
+      setCurrentSummaryIndex(0);
     } catch (error) {
-      console.error('Failed to load summary:', error);
-      setError('Failed to load summary');
+      console.error('Failed to load summaries:', error);
+      setError('Failed to load summaries');
     } finally {
       setLoadingSummary(false);
     }
@@ -94,27 +96,26 @@ function App() {
     setSuccessMessage(null);
     
     try {
-      // Generate summary (this now includes ingestion)
       await api.generateSummary(selectedRepo);
-      
       setSuccessMessage('Generating summary from latest GitHub activity... This may take 10-15 seconds.');
       
       // Poll for the new summary
       let attempts = 0;
-      const maxAttempts = 6; // 30 seconds total (6 * 5 seconds)
+      const maxAttempts = 6;
       
       const pollInterval = setInterval(async () => {
         attempts++;
         
         try {
-          const newSummary = await api.getLatestSummary(selectedRepo);
+          const summaries = await api.getAllSummariesForRepo(selectedRepo);
           
-          // Check if it's a new summary (different from current)
-          if (newSummary && (!summary || newSummary.id !== summary.id || newSummary.created_at !== summary.created_at)) {
-            setSummary(newSummary);
+          // Check if we have new summaries
+          if (summaries.length > allSummaries.length || 
+              (summaries.length > 0 && allSummaries.length > 0 && summaries[0].id !== allSummaries[0].id)) {
+            setAllSummaries(summaries);
+            setCurrentSummaryIndex(0);
             setSuccessMessage('Summary generated successfully with latest data!');
             clearInterval(pollInterval);
-            
             setTimeout(() => setSuccessMessage(null), 3000);
           } else if (attempts >= maxAttempts) {
             clearInterval(pollInterval);
@@ -133,6 +134,37 @@ function App() {
       setError('Failed to generate summary');
     } finally {
       setGenerating(false);
+    }
+  }
+
+  async function handleDeleteSummary() {
+    const currentSummary = allSummaries[currentSummaryIndex];
+    if (!currentSummary || !selectedRepo) return;
+
+    if (!confirm('Are you sure you want to delete this summary?')) {
+      return;
+    }
+
+    try {
+      await api.deleteSummary(currentSummary.id);
+      setSuccessMessage('Summary deleted successfully');
+      await loadAllSummaries(selectedRepo);
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (error) {
+      console.error('Failed to delete summary:', error);
+      setError('Failed to delete summary');
+    }
+  }
+
+  function handlePreviousSummary() {
+    if (currentSummaryIndex < allSummaries.length - 1) {
+      setCurrentSummaryIndex(currentSummaryIndex + 1);
+    }
+  }
+
+  function handleNextSummary() {
+    if (currentSummaryIndex > 0) {
+      setCurrentSummaryIndex(currentSummaryIndex - 1);
     }
   }
 
@@ -268,23 +300,50 @@ function App() {
             </div>
 
             {loadingSummary ? (
-              <div className="loading">Loading summary...</div>
-            ) : summary ? (
+              <div className="loading">Loading summaries...</div>
+            ) : allSummaries.length > 0 ? (
               <div className="summary-card">
                 <div className="summary-header">
-                  <h1 className="summary-title">Weekly Engineering Summary</h1>
-                  <div className="summary-meta">
-                    {new Date(summary.week_start).toLocaleDateString()} -{' '}
-                    {new Date(summary.week_end).toLocaleDateString()}
+                  <div>
+                    <h1 className="summary-title">Weekly Engineering Summary</h1>
+                    <div className="summary-meta">
+                      {new Date(allSummaries[currentSummaryIndex].week_start).toLocaleDateString()} -{' '}
+                      {new Date(allSummaries[currentSummaryIndex].week_end).toLocaleDateString()}
+                    </div>
                   </div>
+                  <button
+                    className="button button-small button-danger"
+                    onClick={handleDeleteSummary}
+                  >
+                    🗑️ Delete
+                  </button>
                 </div>
                 <div className="summary-content">
                   <Markdown remarkPlugins={[remarkGfm]}>
                     {enhanceWithLinks(
-                      summary.summary_text,
+                      allSummaries[currentSummaryIndex].summary_text,
                       repositories.find((r) => r.id === selectedRepo)?.full_name || ''
                     )}
                   </Markdown>
+                </div>
+                <div className="summary-navigation">
+                  <button
+                    className="button button-small button-secondary"
+                    onClick={handlePreviousSummary}
+                    disabled={currentSummaryIndex >= allSummaries.length - 1}
+                  >
+                    ← Previous
+                  </button>
+                  <span className="summary-counter">
+                    {currentSummaryIndex + 1} of {allSummaries.length}
+                  </span>
+                  <button
+                    className="button button-small button-secondary"
+                    onClick={handleNextSummary}
+                    disabled={currentSummaryIndex <= 0}
+                  >
+                    Next →
+                  </button>
                 </div>
               </div>
             ) : (
@@ -294,7 +353,7 @@ function App() {
                   No weekly summary has been generated for this repository yet.
                 </p>
                 <p className="empty-state-text">
-                  Run <code>npm run summary {user.userId}</code> to generate one.
+                  Click "Generate New Summary" to create one.
                 </p>
               </div>
             )}

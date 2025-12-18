@@ -72,10 +72,17 @@ export async function migrate() {
       week_end TIMESTAMP NOT NULL,
       summary_text TEXT NOT NULL,
       model_version VARCHAR(50) NOT NULL,
+      deleted SMALLINT DEFAULT 0,
       created_at TIMESTAMP DEFAULT NOW(),
       updated_at TIMESTAMP DEFAULT NOW(),
       UNIQUE(repo_id, week_start, week_end)
     )
+  `);
+
+  // Add deleted column if it doesn't exist (for existing databases)
+  await query(`
+    ALTER TABLE summaries 
+    ADD COLUMN IF NOT EXISTS deleted SMALLINT DEFAULT 0
   `);
 
   await query(`
