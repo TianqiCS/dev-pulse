@@ -82,8 +82,8 @@ export async function migrate() {
     CREATE TABLE IF NOT EXISTS summaries (
       id SERIAL PRIMARY KEY,
       repo_id INTEGER REFERENCES repositories(id) ON DELETE CASCADE,
-      week_start TIMESTAMP NOT NULL,
-      week_end TIMESTAMP NOT NULL,
+      week_start TIMESTAMP NOT NULL,  -- Start of summary period (can be 7, 14, or 30 days)
+      week_end TIMESTAMP NOT NULL,    -- End of summary period
       summary_text TEXT NOT NULL,
       model_version VARCHAR(50) NOT NULL,
       deleted SMALLINT DEFAULT 0,
@@ -101,7 +101,7 @@ export async function migrate() {
 
   await query(`
     CREATE INDEX IF NOT EXISTS idx_summaries_repo_week 
-    ON summaries(repo_id, week_start DESC)
+    ON summaries(repo_id, week_start DESC)  -- Index for period-based queries
   `);
 
   console.log('Database migrations completed successfully!');

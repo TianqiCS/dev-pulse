@@ -2,6 +2,8 @@
 
 ## Quick Start - Generate Your First Summary
 
+Summaries can be generated for any time period: 7, 14, or 30 days.
+
 ### 1. Add OpenAI API Key to `.env`
 
 ```env
@@ -63,7 +65,7 @@ The AI summary includes:
 
 ```markdown
 ## Overview
-This week saw significant activity in TianqiCS/ping-caster with 1 commit, 1 pull request merged, and some CI challenges addressed.
+This period saw significant activity in TianqiCS/ping-caster with 1 commit, 1 pull request merged, and some CI challenges addressed.
 
 ## Key Accomplishments
 - PR #1 "sync version" was successfully merged by TianqiCS
@@ -83,7 +85,7 @@ This week saw significant activity in TianqiCS/ping-caster with 1 commit, 1 pull
 
 ## How It Works
 
-1. **Aggregation** - Collects last 7 days of activity (commits, PRs, reviews, CI)
+1. **Aggregation** - Collects activity from specified period (7, 14, or 30 days: commits, PRs, reviews, CI)
 2. **Structuring** - Organizes data into stats and categories
 3. **AI Generation** - Sends structured prompt to GPT-4 (temperature: 0.3)
 4. **Storage** - Saves to database with idempotency (won't duplicate)
@@ -118,10 +120,10 @@ Invoke-WebRequest -Uri 'http://localhost:3000/summaries/repo/2/latest' `
 ## Next Steps
 
 Once you've tested the summaries:
-1. Schedule weekly generation (cron job)
+1. Schedule periodic generation (cron job)
 2. Add Slack/email delivery
 3. Build web UI dashboard
-4. Add multi-week comparisons
+4. Add multi-period comparisons
 
 ---
 

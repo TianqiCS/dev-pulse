@@ -17,7 +17,7 @@ function App() {
   const [generating, setGenerating] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
-  const [timeRange, setTimeRange] = useState<number>(7); // Default to 7 days (weekly)
+  const [timeRange, setTimeRange] = useState<number>(7); // Default to 7 days
 
   // Check authentication on mount
   useEffect(() => {
@@ -362,7 +362,7 @@ function App() {
               <div className="empty-state">
                 <h2 className="empty-state-title">No Summary Available</h2>
                 <p className="empty-state-text">
-                  No weekly summary has been generated for this repository yet.
+                  No summary has been generated for this repository yet.
                 </p>
                 <p className="empty-state-text">
                   Click "Generate New Summary" to create one.

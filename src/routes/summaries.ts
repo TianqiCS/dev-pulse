@@ -121,23 +121,23 @@ router.post('/repo/:repoId/generate', requireAuth, async (req: Request, res: Res
         
         // Step 2: Aggregate activity data
         console.log(`  2/3 Aggregating activity data...`);
-        const weekEnd = new Date();
-        const weekStart = new Date();
-        weekStart.setDate(weekStart.getDate() - daysBack);
-        const { aggregateWeeklyActivityByPeriod } = await import('../services/aggregation');
-        const activityData = await aggregateWeeklyActivityByPeriod(repo.id, repo.full_name, weekStart, weekEnd);
+        const periodEnd = new Date();
+        const periodStart = new Date();
+        periodStart.setDate(periodStart.getDate() - daysBack);
+        const { aggregateActivityByPeriod } = await import('../services/aggregation');
+        const activityData = await aggregateActivityByPeriod(repo.id, repo.full_name, periodStart, periodEnd);
         console.log(`  ✓ Found ${activityData.stats.commits} commits, ${activityData.stats.prsOpened} PRs`);
         
         // Step 3: Generate AI summary
         console.log(`  3/3 Generating AI summary...`);
         const summaryService = new SummaryService();
-        const summaryText = await summaryService.generateWeeklySummary(activityData);
+        const summaryText = await summaryService.generateSummary(activityData);
         
         // Store in database
         await createOrUpdateSummary(
           repo.id,
-          activityData.weekStart,
-          activityData.weekEnd,
+          activityData.periodStart,
+          activityData.periodEnd,
           summaryText,
           'gpt-5-mini-2025-08-07'
         );

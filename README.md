@@ -4,7 +4,7 @@ An AI-powered assistant for engineering teams that automatically turns GitHub ac
 
 ## Overview
 
-DevPulse observes commits, pull requests, reviews, and CI results from your GitHub repositories, then generates daily/weekly summaries and explanations to answer the question: **"What's going on with our engineering work?"**
+DevPulse observes commits, pull requests, reviews, and CI results from your GitHub repositories, then generates summaries and explanations to answer the question: **"What's going on with our engineering work?"**
 
 ## Current Status: Task #003 - Web UI for Summaries 🚀
 
@@ -19,7 +19,7 @@ DevPulse now has a complete web interface for viewing AI-generated engineering s
 - Normalized PostgreSQL schema with idempotency
 
 ✅ **Task #002: AI Summary Generation**
-- Weekly activity aggregation and statistics
+- Activity aggregation and statistics (configurable period: 7, 14, or 30 days)
 - GPT-4 powered summary generation
 - Structured output: Overview, Accomplishments, Risks, Contributors
 - Anti-hallucination safeguards (low temperature, explicit constraints)
@@ -243,16 +243,17 @@ npm run ingest 1
 
 #### AI Summaries 🆕
 
-**Generate Weekly Summary via CLI**
+**Generate Summary via CLI**
 ```bash
 npm run summary <userId> [repoId] [--days=7] [--force]
 ```
 
 Examples:
 ```bash
-npm run summary 1              # All selected repos
+npm run summary 1              # All selected repos (last 7 days)
 npm run summary 1 2            # Specific repo (ID: 2)
 npm run summary 1 --days=14    # Last 14 days
+npm run summary 1 --days=30    # Last 30 days
 npm run summary 1 --force      # Regenerate existing
 ```
 
@@ -356,7 +357,7 @@ GET /summaries/latest
 ### summaries 🆕
 - `id` - Primary key
 - `repo_id` - Foreign key to repositories
-- `week_start` - Start of summary period
+- `week_start` - Start of summary period (7, 14, or 30 days)
 - `week_end` - End of summary period
 - `summary_text` - AI-generated markdown summary
 - `model_version` - GPT model used (e.g., gpt-4-turbo-preview)
@@ -415,7 +416,7 @@ dev-pulse/
 - ✅ Data is normalized with structured event types
 
 ### Task #002: AI Summary Generation
-- ✅ Weekly summaries can be generated on demand
+- ✅ Summaries can be generated on demand (7, 14, or 30 day periods)
 - ✅ Summaries are readable, accurate, and consistent
 - ✅ Summaries are stored and retrievable from DB
 - ✅ Can be regenerated idempotently
@@ -425,7 +426,8 @@ dev-pulse/
 ### Task #003: Web UI 🆕
 - ✅ User logs in via GitHub OAuth
 - ✅ Selects a repository from dropdown
-- ✅ Sees the latest weekly summary
+- ✅ Sees the latest summary
+- ✅ Can choose time range (7, 14, or 30 days)
 - ✅ Page loads in <2 seconds
 - ✅ Professional, executive-friendly design
 - ✅ Markdown rendering with clear sections
@@ -434,16 +436,16 @@ dev-pulse/
 ## Next Steps
 
 **Completed:**
-- ✅ ~~AI-powered weekly summaries~~ (Task #002)
+- ✅ ~~AI-powered summaries~~ (Task #002)
 - ✅ ~~Web UI dashboard~~ (Task #003)
 
 **Future Tasks:**
 - Scheduled summary generation (cron jobs)
-- Week selector (view history)
+- Summary history viewer (view previous periods)
 - Slack/email delivery of summaries
 - Shareable summary links
 - Real-time webhooks instead of polling
-- Multi-week trend analysis
+- Multi-period trend analysis
 - Multi-team/organization support
 - Mobile optimization
 - Export to PDF

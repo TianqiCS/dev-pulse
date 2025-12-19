@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 import { config } from '../config';
-import { WeeklyActivityData } from './aggregation';
-import { buildWeeklySummaryPrompt } from './prompts';
+import { ActivityData } from './aggregation';
+import { buildSummaryPrompt } from './prompts';
 
 const MODEL_VERSION = 'gpt-5-mini-2025-08-07';
 
@@ -15,8 +15,8 @@ export class SummaryService {
     this.openai = new OpenAI({ apiKey: config.openai.apiKey });
   }
 
-  async generateWeeklySummary(data: WeeklyActivityData): Promise<string> {
-    const prompt = buildWeeklySummaryPrompt(data);
+  async generateSummary(data: ActivityData): Promise<string> {
+    const prompt = buildSummaryPrompt(data);
 
     try {
       const response = await this.openai.chat.completions.create({
@@ -25,7 +25,7 @@ export class SummaryService {
           {
             role: 'system',
             content:
-              'You are an expert engineering manager assistant that creates clear, factual, and professional weekly summaries of software development activity.',
+              'You are an expert engineering manager assistant that creates clear, factual, and professional summaries of software development activity.',
           },
           {
             role: 'user',
