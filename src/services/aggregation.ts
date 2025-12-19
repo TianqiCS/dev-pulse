@@ -21,11 +21,11 @@ export interface AggregatedActivity {
   items: any[];
 }
 
-export interface WeeklyActivityData {
+export interface ActivityData {
   repoId: number;
   repoName: string;
-  weekStart: Date;
-  weekEnd: Date;
+  periodStart: Date;
+  periodEnd: Date;
   stats: ActivityStats;
   activities: {
     commits: any[];
@@ -40,15 +40,15 @@ export interface WeeklyActivityData {
   contributors: string[];
 }
 
-export async function aggregateWeeklyActivity(
+export async function aggregateActivity(
   repo: { id: number; full_name: string }
-): Promise<WeeklyActivityData> {
-  // Calculate current week (last 7 days)
-  const weekEnd = new Date();
-  const weekStart = new Date();
-  weekStart.setDate(weekStart.getDate() - 7);
+): Promise<ActivityData> {
+  // Calculate current period (last 7 days)
+  const periodEnd = new Date();
+  const periodStart = new Date();
+  periodStart.setDate(periodStart.getDate() - 7);
 
-  const activities = await getActivitiesByRepoAndDateRange(repo.id, weekStart, weekEnd);
+  const activities = await getActivitiesByRepoAndDateRange(repo.id, periodStart, periodEnd);
 
   const stats: ActivityStats = {
     totalActivities: activities.length,
@@ -181,8 +181,8 @@ export async function aggregateWeeklyActivity(
   return {
     repoId: repo.id,
     repoName: repo.full_name,
-    weekStart,
-    weekEnd,
+    periodStart,
+    periodEnd,
     stats,
     activities: {
       commits,
@@ -198,14 +198,13 @@ export async function aggregateWeeklyActivity(
   };
 }
 
-// Legacy function for backward compatibility
-export async function aggregateWeeklyActivityByPeriod(
+export async function aggregateActivityByPeriod(
   repoId: number,
   repoName: string,
-  weekStart: Date,
-  weekEnd: Date
-): Promise<WeeklyActivityData> {
-  const activities = await getActivitiesByRepoAndDateRange(repoId, weekStart, weekEnd);
+  periodStart: Date,
+  periodEnd: Date
+): Promise<ActivityData> {
+  const activities = await getActivitiesByRepoAndDateRange(repoId, periodStart, periodEnd);
 
   const stats: ActivityStats = {
     totalActivities: activities.length,
@@ -338,8 +337,8 @@ export async function aggregateWeeklyActivityByPeriod(
   return {
     repoId,
     repoName,
-    weekStart,
-    weekEnd,
+    periodStart,
+    periodEnd,
     stats,
     activities: {
       commits,

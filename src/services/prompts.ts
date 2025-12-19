@@ -1,4 +1,4 @@
-import { WeeklyActivityData } from './aggregation';
+import { ActivityData } from './aggregation';
 
 function formatBodyPreview(body: string | null | undefined): string {
   if (!body) return '';
@@ -6,13 +6,13 @@ function formatBodyPreview(body: string | null | undefined): string {
   return '\n  Description: ' + preview + (body.length > 200 ? '...' : '');
 }
 
-export function buildWeeklySummaryPrompt(data: WeeklyActivityData): string {
-  const { repoName, weekStart, weekEnd, stats, activities, contributors } = data;
+export function buildSummaryPrompt(data: ActivityData): string {
+  const { repoName, periodStart, periodEnd, stats, activities, contributors } = data;
 
-  const startDate = weekStart.toISOString().split('T')[0];
-  const endDate = weekEnd.toISOString().split('T')[0];
+  const startDate = periodStart.toISOString().split('T')[0];
+  const endDate = periodEnd.toISOString().split('T')[0];
 
-  return `You are an engineering manager assistant that creates clear, factual weekly summaries of software development activity.
+  return `You are an engineering manager assistant that creates clear, factual summaries of software development activity.
 
 CRITICAL INSTRUCTIONS:
 - Only use information from the data provided below
@@ -23,7 +23,7 @@ CRITICAL INSTRUCTIONS:
 - Use professional, clear language
 
 REPOSITORY: ${repoName}
-WEEK: ${startDate} to ${endDate}
+PERIOD: ${startDate} to ${endDate}
 
 ACTIVITY STATISTICS:
 - Total commits: ${stats.commits}
@@ -40,7 +40,7 @@ ACTIVITY STATISTICS:
 - Active contributors: ${contributors.length}
 
 COMMITS (${stats.commits} total):
-${activities.commits.slice(0, 10).map(c => `- ${c.sha}: ${c.message.split('\n')[0]} (${c.author})`).join('\n') || 'No commits this week'}
+${activities.commits.slice(0, 10).map(c => `- ${c.sha}: ${c.message.split('\n')[0]} (${c.author})`).join('\n') || 'No commits this period'}
 
 PULL REQUESTS OPENED (${stats.prsOpened} total):
 ${activities.prsOpened.map(pr => `- PR #${pr.number}: ${pr.title} by ${pr.author}${formatBodyPreview(pr.body)}`).join('\n') || 'No PRs opened'}
@@ -63,10 +63,10 @@ ${activities.ciFailures.slice(0, 5).map(ci => `- ${ci.checkName}: ${ci.conclusio
 CONTRIBUTORS (${contributors.length} active):
 ${contributors.join(', ')}
 
-Generate a professional weekly engineering summary with these sections:
+Generate a professional engineering summary with these sections:
 
 ## Overview
-A 2-3 sentence high-level summary of the week's engineering activity.
+A 2-3 sentence high-level summary of the period's engineering activity.
 
 ## Key Accomplishments
 - Bullet points of major work completed (merged PRs, significant commits, closed issues)
@@ -81,7 +81,7 @@ A 2-3 sentence high-level summary of the week's engineering activity.
 - New issues opened and their status
 - CI failures and their patterns (if any)
 - Blocked or closed PRs (if any)
-- If none, say "No significant issues or blockers this week"
+- If none, say "No significant issues or blockers this period"
 
 ## Notable Contributors
 - Briefly mention contributors and their main contributions

@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { getSelectedRepositories, getRepositoryById } from '../models/repository';
-import { aggregateWeeklyActivityByPeriod } from '../services/aggregation';
+import { aggregateActivityByPeriod } from '../services/aggregation';
 import { SummaryService } from '../services/summary';
 import { createOrUpdateSummary, getSummary } from '../models/summary';
 
@@ -12,7 +12,7 @@ interface GenerateSummaryOptions {
 }
 
 async function generateSummary(options: GenerateSummaryOptions) {
-  console.log('=== DevPulse Weekly Summary Generation ===');
+  console.log('=== DevPulse Summary Generation ===');
   console.log(`Started at: ${new Date().toISOString()}\n`);
 
   try {
@@ -42,9 +42,9 @@ async function generateSummary(options: GenerateSummaryOptions) {
     });
     console.log('');
 
-    const weekEnd = new Date();
-    const weekStart = new Date();
-    weekStart.setDate(weekStart.getDate() - daysBack);
+    const periodEnd = new Date();
+    const periodStart = new Date();
+    periodStart.setDate(periodStart.getDate() - daysBack);
 
     const summaryService = new SummaryService();
 
@@ -53,7 +53,7 @@ async function generateSummary(options: GenerateSummaryOptions) {
 
       // Check if summary already exists
       if (!force) {
-        const existingSummary = await getSummary(repo.id, weekStart, weekEnd);
+        const existingSummary = await getSummary(repo.id, periodStart, periodEnd);
         if (existingSummary) {
           console.log('✓ Summary already exists (use --force to regenerate)');
           console.log(`Created: ${existingSummary.created_at}`);
@@ -64,11 +64,11 @@ async function generateSummary(options: GenerateSummaryOptions) {
 
       // Aggregate activity data
       console.log('Aggregating activity data...');
-      const activityData = await aggregateWeeklyActivityByPeriod(
+      const activityData = await aggregateActivityByPeriod(
         repo.id,
         repo.full_name,
-        weekStart,
-        weekEnd
+        periodStart,
+        periodEnd
       );
 
       console.log(`Found ${activityData.stats.totalActivities} activities`);
@@ -80,13 +80,13 @@ async function generateSummary(options: GenerateSummaryOptions) {
 
       // Generate AI summary
       console.log('Generating AI summary...');
-      const summaryText = await summaryService.generateWeeklySummary(activityData);
+      const summaryText = await summaryService.generateSummary(activityData);
 
       // Store summary
       const summary = await createOrUpdateSummary(
         repo.id,
-        weekStart,
-        weekEnd,
+        periodStart,
+        periodEnd,
         summaryText,
         summaryService.getModelVersion()
       );
