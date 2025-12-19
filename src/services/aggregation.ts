@@ -43,7 +43,7 @@ export interface ActivityData {
 export async function aggregateActivity(
   repo: { id: number; full_name: string }
 ): Promise<ActivityData> {
-  // Calculate current period (last 7 days)
+  // Calculate current period (defaults to 7 days)
   const periodEnd = new Date();
   const periodStart = new Date();
   periodStart.setDate(periodStart.getDate() - 7);
