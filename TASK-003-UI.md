@@ -1,8 +1,8 @@
-# DevPulse - Task #003: Weekly Summary Viewer (Web UI)
+# DevPulse - Task #003: Summary Viewer (Web UI)
 
 ## ✅ Complete - First-Class User Experience
 
-A clean, professional web interface for viewing AI-generated weekly engineering summaries.
+A clean, professional web interface for viewing AI-generated engineering summaries.
 
 ## What's Been Built
 
@@ -32,6 +32,10 @@ A clean, professional web interface for viewing AI-generated weekly engineering 
 - Professional typography
 - Skimmable layout
 - Date range display
+
+**Time Range Selection**
+- Choose from 7, 14, or 30 day periods
+- Generate new summaries on demand
 
 **UX Principles**
 - ✅ Calm, professional design
@@ -154,10 +158,10 @@ Edit `frontend/src/api.ts` to:
 - ✗ Comments/collaboration
 - ✗ Sharing links
 - ✗ Mobile optimization
-- ✗ Multiple week history view
+- ✗ History view for multiple periods
 
 **Future Enhancements:**
-- Week selector (view previous weeks)
+- Period selector (view previous summaries)
 - Export to PDF
 - Share via unique link
 - Team comparison view
@@ -199,4 +203,4 @@ Access the UI at `http://localhost:3000` to see:
 
 **Ready to demo!** 🎉 
 
-Your weekly engineering summaries are now just one click away.
+Your engineering summaries are now just one click away.
